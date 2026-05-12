@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Pythagorean Calculator</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(45deg, #2980b9, #6dd5fa, #ffffff);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 95vh;
+        }
+
+        .container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.92);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 420px;
+        }
+
+        h1 {
+            color: #2980b9;
+            margin-bottom: 20px;
+        }
+
+        input {
+            padding: 10px;
+            margin: 10px 0;
+            width: 85%;
+            border: 1px solid #3498db;
+            border-radius: 5px;
+            font-size: 15px;
+        }
+
+        button {
+            padding: 12px 22px;
+            background: linear-gradient(45deg, #4caf50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #45a049, #4caf50);
+        }
+
+        .result {
+            margin-top: 25px;
+        }
+
+        .name-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 25px;
+            gap: 15px;
+        }
+
+        .word-box {
+            flex: 1;
+            text-align: center;
+        }
+
+        .name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #222;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .numbers {
+            font-size: 16px;
+            color: #555;
+            margin-top: 4px;
+            letter-spacing: 3px;
+        }
+
+        .total {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 5px;
+            color: #2980b9;
+        }
+
+        .details {
+            margin-top: 25px;
+            text-align: left;
+        }
+
+        .details p {
+            margin: 8px 0;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .details span {
+            color: #2980b9;
+            font-weight: bold;
+        }
+
+        .final {
+            margin-top: 20px;
+            font-size: 50px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Pythagorean Calculator</h1>
+
+        <input 
+            type="text" 
+            id="fullName" 
+            placeholder="Enter Full Name"
+            onkeydown="handleEnter(event)"
+        >
+
+        <br>
+
+        <button onclick="calculateNumerology()">
+            Calculate
+        </button>
+
+        <div class="result" id="result"></div>
+
+    </div>
+
+    <script>
+
+        const numerologyMap = {
+            A:1, J:1, S:1,
+            B:2, K:2, T:2,
+            C:3, L:3, U:3,
+            D:4, M:4, V:4,
+            E:5, N:5, W:5,
+            F:6, O:6, X:6,
+            G:7, P:7, Y:7,
+            H:8, Q:8, Z:8,
+            I:9, R:9
+        };
+
+        const vowels = ['A','E','I','O','U'];
+
+        function handleEnter(event){
+            if(event.key === "Enter"){
+                calculateNumerology();
+            }
+        }
+
+        function reduceNumber(num){
+
+            while(num > 9){
+                num = num
+                    .toString()
+                    .split('')
+                    .reduce((a,b) => a + Number(b), 0);
+            }
+
+            return num;
+        }
+
+        function getWordData(word){
+
+            let values = [];
+            let total = 0;
+
+            for(let char of word.toUpperCase()){
+
+                if(numerologyMap[char]){
+
+                    let value = numerologyMap[char];
+
+                    values.push(value);
+
+                    total += value;
+                }
+            }
+
+            return {
+                values,
+                total
+            };
+        }
+
+        function calculateNumerology(){
+
+            const input = document.getElementById("fullName").value.trim();
+            const result = document.getElementById("result");
+
+            result.innerHTML = "";
+
+            if(!input){
+                alert("Please enter full name");
+                return;
+            }
+
+            const words = input.split(/\s+/);
+
+            let fullTotal = 0;
+            let vowelTotal = 0;
+            let consonantTotal = 0;
+
+            let wordsHTML = '<div class="name-section">';
+
+            words.forEach(word => {
+
+                const data = getWordData(word);
+
+                fullTotal += data.total;
+
+                for(let ch of word.toUpperCase()){
+
+                    if(numerologyMap[ch]){
+
+                        if(vowels.includes(ch)){
+                            vowelTotal += numerologyMap[ch];
+                        } else {
+                            consonantTotal += numerologyMap[ch];
+                        }
+                    }
+                }
+
+                wordsHTML += `
+                    <div class="word-box">
+
+                        <div class="name">
+                            ${word}
+                        </div>
+
+                        <div class="numbers">
+                            ${data.values.join(" ")}
+                        </div>
+
+                        <div class="total">
+                            ${data.total}
+                        </div>
+
+                    </div>
+                `;
+            });
+
+            wordsHTML += '</div>';
+
+            // First name total
+            const firstNameTotal = getWordData(words[0]).total;
+
+            // Last name total (all words except first)
+            let lastNameTotal = 0;
+
+            for(let i = 1; i < words.length; i++){
+                lastNameTotal += getWordData(words[i]).total;
+            }
+
+            result.innerHTML = `
+
+                ${wordsHTML}
+
+                <div class="details">
+
+                    <p>
+                        First Name Total :
+                        <span>${firstNameTotal}</span>
+                    </p>
+
+                    <p>
+                        Last Name Total :
+                        <span>${lastNameTotal}</span>
+                    </p>
+
+                    <p>
+                        Full Name Total :
+                        <span>${fullTotal}</span>
+                    </p>
+
+                    <p>
+                        Vowels Total :
+                        <span>${vowelTotal}</span>
+                    </p>
+
+                    <p>
+                        Consonants Total :
+                        <span>${consonantTotal}</span>
+                    </p>
+
+                </div>
+
+                <div class="final">
+                    ${reduceNumber(fullTotal)}
+                </div>
+
+            `;
+        }
+
+    </script>
+
+</body>
+</html>
